@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feria de la Salud - Lazos del Bienestar</title>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Montserrat (Similar a Noto Sans/Patria para web) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Definición de Colores Institucionales basados en el PDF */
+        :root {
+            --gob-guinda: #9b2247;
+            --gob-guinda-dark: #611232;
+            --gob-gold: #a57f2c;
+            /* Pantone 1255 C */
+            --gob-gold-light: #e6d194;
+            /* Pantone 7402 C */
+            --gob-green: #1e5b4f;
+            /* Pantone 626 C */
+            --gob-green-dark: #002f2a;
+            /* Pantone 627 C */
+            --gob-grey: #98989A;
+            --gob-black: #161a1d;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .font-patria {
+            font-family: 'Playfair Display', serif;
+            /* Aproximación a tipografía Patria */
+        }
+
+        .bg-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239b2247' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Animaciones suaves */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Datos extraídos del DOCX ---
+        const areasData = [
+            {
+                id: 1,
+                title: "Área 1: Admisión e Inteligencia Comunitaria",
+                icon: "fa-users-viewfinder",
+                color: "bg-[#9b2247]", // Guinda
+                lightColor: "bg-red-50",
+                services: [
+                    {
+                        title: "Bienvenida y Triaje Social",
+                        desc: "La Red de Voceros y la Red de Jóvenes realizan el primer filtro, identificando casos prioritarios captados previamente en el polígono.",
+                        icon: "fa-handshake"
+                    },
+                    {
+                        title: "Registro Unificado SNSP",
+                        desc: "Los Gestores Comunitarios dan de alta al usuario en el Gestor (F1). Se marca referencia de redes específicas (ej. Círculo Violeta) para trazabilidad.",
+                        icon: "fa-address-card"
+                    },
+                    {
+                        title: "Estación de Signos y Tamizaje",
+                        desc: "La Red de Enfermería realiza la toma de constantes, glucosa y somatometría, alimentando el expediente clínico digital en tiempo real.",
+                        icon: "fa-user-nurse"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "Área 2: Gestión Clínica Resolutiva",
+                icon: "fa-user-doctor",
+                color: "bg-[#1e5b4f]", // Verde
+                lightColor: "bg-teal-50",
+                services: [
+                    {
+                        title: "Consulta y Diagnóstico",
+                        desc: "Valoración médica para casos agudos, crónicos y medicina preventiva.",
+                        icon: "fa-stethoscope"
+                    },
+                    {
+                        title: "Servicios Especializados y Móviles",
+                        desc: "Vacunas y unidades de Mastografía/Papanicolaou para mujeres derivadas por el Círculo Violeta.",
+                        icon: "fa-truck-medical"
+                    },
+                    {
+                        title: "Salud Mental y Adicciones",
+                        desc: "Módulo crítico de orientación familiar sobre rutas de atención y prevención de crisis (suicidio/adicciones).",
+                        icon: "fa-brain"
+                    },
+                    {
+                        title: "Salud Dental",
+                        desc: "Módulo orientado a la atención odontológica general.",
+                        icon: "fa-tooth"
+                    },
+                    {
+                        title: "Valoración Oftalmológica",
+                        desc: "Pesquisa de candidatos a cirugía por cataratas.",
+                        icon: "fa-eye"
+                    },
+                    {
+                        title: "Farmacia y Medicamento",
+                        desc: "Entrega inmediata de recetas y surtimiento de fármacos disponibles en la unidad itinerante.",
+                        icon: "fa-prescription-bottle-medical"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: "Área 3: Prescripción Social",
+                icon: "fa-people-arrows",
+                color: "bg-[#a57f2c]", // Dorado
+                lightColor: "bg-yellow-50",
+                services: [
+                    {
+                        title: "Gestión de Apoyos Funcionales",
+                        desc: "Trámite de ayudas (sillas de ruedas, bastones, lentes) mediante enlace con Patrimonio o el DIF.",
+                        icon: "fa-wheelchair"
+                    },
+                    {
+                        title: "Activación y Estilos de Vida",
+                        desc: "Derivación a la Dirección de Estilos de Vida Saludables para grupos GAM, yoga, gimnasio o centros culturales.",
+                        icon: "fa-person-walking"
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: "Área 4: Continuidad de la Atención",
+                icon: "fa-hospital-user",
+                color: "bg-[#161a1d]", // Negro neutro
+                lightColor: "bg-gray-100",
+                services: [
+                    {
+                        title: "Certificados Médicos Oficiales",
+                        desc: "Espacio de la Jurisdicción Sanitaria para validar certificados necesarios para trámites.",
+                        icon: "fa-file-signature"
+                    },
+                    {
+                        title: "Referencia Digital",
+                        desc: "Generación de folios para estudios complejos (ultrasonido/laboratorio) no realizables en sitio.",
+                        icon: "fa-laptop-medical"
+                    },
+                    {
+                        title: "Cierre de Brecha (SECOSABI)",
+                        desc: "Coordinación y confirmación de citas en unidades resolutivas, asegurando seguimiento hasta satisfacer la necesidad.",
+                        icon: "fa-circle-check"
+                    }
+                ]
+            }
+        ];
+
+        // --- Componentes ---
+
+        const Header = () => (
+            <header className="w-full shadow-md bg-white sticky top-0 z-50">
+                {/* Barra Institucional Superior */}
+                <div className="bg-[#002f2a] text-white text-xs py-1 px-4 flex justify-center items-center gap-4">
+                    <span>Secretaría de Salud Tamaulipas</span>
+                    <span className="opacity-50">•</span>
+                    <span>DIF Tamaulipas</span>
+                    <span className="opacity-50">•</span>
+                    <span>Servicio Nacional de Salud Pública</span>
+                </div>
+
+                <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                    {/* Logos */}
+                    <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">
+                        {/* Logo Secretaría de Salud */}
+                        <img
+                            src="logo salud.png"
+                            alt="Secretaría de Salud"
+                            className="h-12 md:h-16 object-contain"
+                            title="Secretaría de Salud"
+                        />
+                        <div className="h-10 w-px bg-gray-300 hidden md:block"></div>
+                        {/* Logo SNSP */}
+                        <img
+                            src="logo SNSP.png"
+                            alt="SNSP - Servicio Nacional de Salud Pública"
+                            className="h-10 md:h-14 object-contain"
+                            title="Servicio Nacional de Salud Pública"
+                        />
+                        <div className="h-10 w-px bg-gray-300 hidden md:block"></div>
+                        {/* Logo DIF Tamaulipas */}
+                        <img
+                            src="dif.png"
+                            alt="DIF Tamaulipas"
+                            className="h-10 md:h-14 object-contain"
+                            title="DIF Tamaulipas"
+                        />
+                    </div>
+
+                    {/* Branding Margarita Maza */}
+                    <div className="flex items-center">
+                        <img
+                            src="Margarita Maza.png"
+                            alt="2026 - Año de Margarita Maza"
+                            className="h-14 md:h-20 object-contain"
+                            title="2026 - Año de Margarita Maza"
+                        />
+                    </div>
+                </div>
+                {/* Barra Guinda Decorativa */}
+                <div className="h-1 w-full bg-[#9b2247]"></div>
+            </header>
+        );
+
+        const Hero = () => (
+            <div className="relative bg-[#1e5b4f] text-white py-16 px-4 overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-pattern"></div>
+                <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-[#a57f2c] rounded-full opacity-20 blur-3xl"></div>
+                <div className="absolute -left-20 top-10 w-48 h-48 bg-[#9b2247] rounded-full opacity-20 blur-3xl"></div>
+
+                <div className="container mx-auto relative z-10 text-center">
+                    <h2 className="text-[#e6d194] uppercase tracking-widest text-sm font-bold mb-2">Estrategia Integral</h2>
+                    <h1 className="text-4xl md:text-6xl font-patria font-bold mb-6">Feria de la Salud</h1>
+                    <div className="inline-block bg-[#9b2247] px-6 py-2 rounded-full shadow-lg mb-6">
+                        <h3 className="text-xl md:text-2xl font-semibold">"Lazos del Bienestar"</h3>
+                    </div>
+                    <p className="max-w-2xl mx-auto text-lg text-gray-100 leading-relaxed">
+                        Un nuevo modelo de atención itinerante que integra inteligencia comunitaria, gestión clínica resolutiva y continuidad en la atención para el bienestar de todos.
+                    </p>
+                </div>
+            </div>
+        );
+
+        const ServiceCard = ({ service, colorClass }) => (
+            <div className="bg-white p-4 rounded-lg border-l-4 border-gray-200 hover:border-[#9b2247] shadow-sm transition-all duration-300">
+                <div className="flex items-start gap-4">
+                    <div className={`w-10 h-10 rounded-full ${colorClass} text-white flex items-center justify-center flex-shrink-0`}>
+                        <i className={`fa-solid ${service.icon} text-sm`}></i>
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-[#161a1d] text-sm md:text-base mb-1">{service.title}</h4>
+                        <p className="text-xs md:text-sm text-gray-600 leading-snug">{service.desc}</p>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const AreaSection = ({ area, index }) => {
+            const isEven = index % 2 === 0;
+
+            return (
+                <div className={`py-12 px-4 ${area.lightColor} border-b border-gray-200`}>
+                    <div className="container mx-auto">
+                        <div className={`flex flex-col md:flex-row gap-8 items-center ${!isEven ? 'md:flex-row-reverse' : ''}`}>
+
+                            {/* Columna de Título */}
+                            <div className="w-full md:w-1/3 text-center md:text-left">
+                                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${area.color} text-white text-2xl mb-4 shadow-lg`}>
+                                    <i className={`fa-solid ${area.icon}`}></i>
+                                </div>
+                                <h2 className={`text-3xl font-patria font-bold mb-2`} style={{ color: area.id === 3 ? '#a57f2c' : (area.id === 2 ? '#1e5b4f' : '#9b2247') }}>
+                                    {area.title}
+                                </h2>
+                                <div className="h-1 w-20 bg-gray-300 rounded mb-4 mx-auto md:mx-0"></div>
+                            </div>
+
+                            {/* Columna de Servicios (Grid) */}
+                            <div className="w-full md:w-2/3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {area.services.map((service, idx) => (
+                                        <ServiceCard key={idx} service={service} colorClass={area.color} />
+                                    ))}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Flowchart = () => (
+            <section className="bg-white py-16 px-4">
+                <div className="container mx-auto">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-patria font-bold text-[#161a1d]">Flujograma de Atención</h2>
+                        <p className="text-[#9b2247] font-semibold mt-2">Ruta del paciente</p>
+                    </div>
+
+                    {/* Visualización Desktop: Linea de tiempo */}
+                    <div className="hidden md:flex justify-between items-center relative">
+                        {/* Línea conectora */}
+                        <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -z-0 transform -translate-y-1/2"></div>
+
+                        {areasData.map((area, idx) => (
+                            <div key={idx} className="relative z-10 bg-white p-4 rounded-xl shadow-lg border-2 border-transparent hover:border-[#a57f2c] transition w-64 text-center cursor-default group">
+                                <div className={`w-12 h-12 mx-auto rounded-full ${area.color} text-white flex items-center justify-center mb-3 group-hover:scale-110 transition`}>
+                                    <span className="font-bold">{idx + 1}</span>
+                                </div>
+                                <h3 className="font-bold text-sm text-[#161a1d]">{area.title.split(':')[1]}</h3>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Visualización Mobile: Pasos verticales */}
+                    <div className="md:hidden flex flex-col gap-4">
+                        {areasData.map((area, idx) => (
+                            <div key={idx} className="flex items-center bg-white p-4 rounded shadow border-l-4" style={{ borderColor: area.id === 1 ? '#9b2247' : (area.id === 2 ? '#1e5b4f' : '#a57f2c') }}>
+                                <div className={`w-8 h-8 rounded-full ${area.color} text-white flex items-center justify-center mr-4 flex-shrink-0`}>
+                                    <span className="font-bold text-sm">{idx + 1}</span>
+                                </div>
+                                <h3 className="font-bold text-sm text-[#161a1d]">{area.title.split(':')[1]}</h3>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+
+        const Footer = () => (
+            <footer className="bg-[#161a1d] text-white py-10 border-t-4 border-[#a57f2c]">
+                <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                    <div>
+                        <img
+                            src="https://framework-gb.cdn.gob.mx/landing/img/logoheader.svg"
+                            alt="Gobierno de México"
+                            className="h-10 mb-4 mx-auto md:mx-0 filter brightness-0 invert"
+                        />
+                        <p className="text-sm text-gray-400">Secretaría de Salud</p>
+                    </div>
+                    <div className="flex flex-col justify-center">
+                        <p className="text-[#a57f2c] font-patria font-bold text-xl mb-2">2026</p>
+                        <p className="text-gray-300 text-sm uppercase tracking-widest">Año de Margarita Maza</p>
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-[#a57f2c] mb-2">Punto Focal</h4>
+                        <p className="text-sm text-gray-400">Servicio Nacional de Salud Pública - Tamaulipas</p>
+                        <div className="mt-4 flex justify-center md:justify-start gap-4">
+                            <a href="#" className="text-white hover:text-[#a57f2c]"><i className="fab fa-facebook fa-lg"></i></a>
+                            <a href="#" className="text-white hover:text-[#a57f2c]"><i className="fab fa-twitter fa-lg"></i></a>
+                            <a href="#" className="text-white hover:text-[#a57f2c]"><i className="fab fa-instagram fa-lg"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-8 pt-8 border-t border-gray-800 text-center text-xs text-gray-500">
+                    <p>Política de Privacidad | Términos y Condiciones</p>
+                    <p className="mt-2">Gobierno de México © 2026</p>
+                </div>
+            </footer>
+        );
+
+        const App = () => {
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <Header />
+                    <main className="flex-grow">
+                        <Hero />
+                        <Flowchart />
+                        <div id="areas-detalle">
+                            {areasData.map((area, index) => (
+                                <AreaSection key={area.id} area={area} index={index} />
+                            ))}
+                        </div>
+                    </main>
+                    <Footer />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
